@@ -181,12 +181,8 @@ Vertex* startTraverseByRec (int* aGraph, const int size) {
     // запуск рекурсии
     traverseByRec (aGraph, size, countLinks, queue,  0);
     // добавлние в итоговый результат вершин, в которые не удалось перейти
-    for (int i = 0; i < size; i++) {
-        if (findVertex (countLinks, size, i, false) == -1) {
-            int j = findVertex (countLinks, size, i, true);
-            countLinks [j].name = 'a' + i;
-        }
-    }
+    for (int i = 0; i < size; i++)
+        setVisited (countLinks, size, i);
     // garbage collection
     freeTwoLinkList (queue);
     // return
