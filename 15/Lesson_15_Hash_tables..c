@@ -173,7 +173,9 @@ int main (void) {
         }
     } else
         puts ("the goal cannot be achieved");
-
+    // garbage collection
+    if (counts) 
+        free (counts);
     // return o.k.
     return EXIT_SUCCESS;
 } // main
