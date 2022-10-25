@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>  // Для setlocale (LC_ALL, "")
+#include <stdbool.h>
 #include <string.h>
 
 //#define DEBUG
@@ -11,8 +12,31 @@
  * 1.Реализовать шифрование и расшифровку цезаря с передаваемым в функцию сообщением и ключом
  */
 
+#define encCaesar(X,Y) makeCaesar((X), (Y), true)
+#define decCaesar(X,Y) makeCaesar((X), (Y), false)
+
+// encoding/decoding by rearrange
+unsigned char* makeCaesar (const char* srcStr, int key, bool encrypt) {
+
+    if (!srcStr || !(key > 0)) return NULL;
+    int i, msgSize = strlen (srcStr);
+    if (!msgSize) return NULL;
+    unsigned char* outStr = malloc (msgSize * sizeof (unsigned char) + 1);
+
+    key %= 128;
+    for (i = 0; i < msgSize; ++i) {
+        int code = (srcStr [i] + key * (encrypt ? 1 : -1)) % 128;
+        code = ((code > 0) ? code : 128 + code);
+        outStr [i] = (unsigned char)code;
+    } // for (i = 0; i < size; i++)
+    outStr [msgSize] = '\0';
+    
+    // return
+    return outStr;
+} // makeCaesar
+
 // encoding Caesar
-unsigned char* encCaesar (const char* srcStr, int key) {
+unsigned char* encCaesar2 (const char* srcStr, int key) {
     if (!srcStr) return NULL;
     int i, size = strlen (srcStr);
     if (!size) return NULL;
@@ -31,7 +55,7 @@ unsigned char* encCaesar (const char* srcStr, int key) {
 } // encCaesar
 
 // decoding Caesar
-unsigned char* decCaesar (const char* encStr, int key) {
+unsigned char* decCaesar2 (const char* encStr, int key) {
     if (!encStr) return NULL;
     int i, size = strlen (encStr);
     if (!size) return NULL;
@@ -43,7 +67,6 @@ unsigned char* decCaesar (const char* encStr, int key) {
             break;
         }
         int code = encStr [i] - key;
-        code = (code > 0) ? code : 128 + code;
         srcStr [i] = (unsigned char)((code > 0) ? code : 128 + code);
     } // for (i = 0; i < size; i++)
     srcStr [i] = '\0';
@@ -56,8 +79,34 @@ unsigned char* decCaesar (const char* encStr, int key) {
  *   с передаваемым в функцию сообщением и количеством столбцов
  */
 
+#define encReArrange(X,Y) makeReArrange((X), (Y), true)
+#define decReArrange(X,Y) makeReArrange((X), (Y), false)
+
+// encoding/decoding by rearrange
+unsigned char* makeReArrange (const char* srcStr, int key, bool encrypt) {
+
+    if (!srcStr || !(key > 0)) return NULL;
+    int  msgSize = strlen (srcStr);
+    if (!msgSize) return NULL;
+
+    // кол-во строк в таблице
+    int rows = msgSize / key + ((msgSize % key) ? 1 : 0);
+    int tblSize = key * rows;
+    unsigned char* outStr = malloc (tblSize * sizeof (unsigned char) + 1);
+    int count = 0;
+    // если происходит расшифровка, то таблица разворачивается
+    int cols = (encrypt ? key : rows);
+    for (int i = 0; i < cols; ++i)
+        for (int j = i; j < tblSize; j += cols)
+            outStr [count++] = (unsigned char)((j < msgSize) ? srcStr [j] : '-');
+    outStr [tblSize] = '\0';
+
+    // return
+    return outStr;
+} // makeReArrange
+
 // encoding by rearrange
-unsigned char* encReArrange (const char* srcStr, const int COLS) {
+unsigned char* encReArrange2 (const char* srcStr, const int COLS) {
 
     if (!srcStr || !(COLS > 0)) return NULL;
     int  size = strlen (srcStr);
@@ -97,10 +146,10 @@ unsigned char* encReArrange (const char* srcStr, const int COLS) {
 
     // return
     return encStr;
-} // encReArrange
+} // encReArrange2
 
 // decoding by rearrange
-unsigned char* decReArrange (const char* encStr, const int COLS) {
+unsigned char* decReArrange2 (const char* encStr, const int COLS) {
 
     if (!encStr || !(COLS > 0)) return NULL;
     int  size = strlen (encStr);
@@ -139,7 +188,7 @@ unsigned char* decReArrange (const char* encStr, const int COLS) {
 
     // return
     return srcStr;
-} // decReArrange
+} // decReArrange2
 
 // Функция, вызываемая при завершении работы
 void endFunction (void)
@@ -164,7 +213,7 @@ int main (void) {
     puts ("Lesson 16. Introduction to Cryptography.\n");
 
     // Упражнение №1
-    const char srcMsg1 [] = "Ave, Caesar, morituri te salutant",
+    const char srcMsg1 [] = "Ave, Caesar, morituri te salutant.",
                srcMsg2 [] = "Actum est ilicet!";
     unsigned char *encMsg3, *encMsg7;
     int key3 = 3, key7 = 7;
