@@ -15,7 +15,7 @@
 #define encCaesar(X,Y) makeCaesar((X), (Y), true)
 #define decCaesar(X,Y) makeCaesar((X), (Y), false)
 
-// encoding/decoding by rearrange
+// encoding/decoding by Caesar
 unsigned char* makeCaesar (const char* srcStr, int key, bool encrypt) {
 
     if (!srcStr || !(key > 0)) return NULL;
@@ -30,12 +30,12 @@ unsigned char* makeCaesar (const char* srcStr, int key, bool encrypt) {
         outStr [i] = (unsigned char)code;
     } // for (i = 0; i < size; i++)
     outStr [msgSize] = '\0';
-    
+
     // return
     return outStr;
 } // makeCaesar
 
-// encoding Caesar
+// encoding by Caesar
 unsigned char* encCaesar2 (const char* srcStr, int key) {
     if (!srcStr) return NULL;
     int i, size = strlen (srcStr);
@@ -54,7 +54,7 @@ unsigned char* encCaesar2 (const char* srcStr, int key) {
     return encStr;
 } // encCaesar
 
-// decoding Caesar
+// decoding by Caesar
 unsigned char* decCaesar2 (const char* encStr, int key) {
     if (!encStr) return NULL;
     int i, size = strlen (encStr);
@@ -75,7 +75,7 @@ unsigned char* decCaesar2 (const char* encStr, int key) {
 } // decCaesar
 
 /*
- * 2.Реализовать шифрование и расшифровку перестановками 
+ * 2.Реализовать шифрование и расшифровку перестановками
  *   с передаваемым в функцию сообщением и количеством столбцов
  */
 
@@ -111,12 +111,12 @@ unsigned char* encReArrange2 (const char* srcStr, const int COLS) {
     if (!srcStr || !(COLS > 0)) return NULL;
     int  size = strlen (srcStr);
     if (!size) return NULL;
-        
+
     // кол-во строк в таблице
     int rows = size / COLS + ((size % COLS > 0) ? 1 : 0);
     unsigned char* encStr = malloc (rows * COLS + 1);
     unsigned char** array = malloc (rows * sizeof (char*));
-    
+
     // таблица перекодировки
     for (int i = 0; i < rows; i++)
         array [i] = malloc (COLS);
@@ -134,7 +134,7 @@ unsigned char* encReArrange2 (const char* srcStr, const int COLS) {
         for (int i = 0; i < rows; i++)
             //encStr [count++] = *(*(array + i) + j);
             encStr [count++] = array [i][j];
-    
+
     // 3.конец строки
     encStr [rows*COLS] = '\0';
 
@@ -154,12 +154,12 @@ unsigned char* decReArrange2 (const char* encStr, const int COLS) {
     if (!encStr || !(COLS > 0)) return NULL;
     int  size = strlen (encStr);
     if (!size) return NULL;
-        
+
     // кол-во строк в таблице
     int rows = size / COLS + ((size % COLS > 0) ? 1 : 0);
     unsigned char* srcStr = malloc (rows * COLS + 1);
     unsigned char** array = malloc (rows * sizeof (char*));
-    
+
     // таблица перекодировки
     for (int i = 0; i < rows; i++)
         array [i] = malloc (COLS);
@@ -176,7 +176,7 @@ unsigned char* decReArrange2 (const char* encStr, const int COLS) {
     for (int i = 0; i < rows; i++)
         for (int j = 0; j < COLS; j++)
             srcStr [count++] = array [i][j];
-    
+
     // 3.конец строки
     srcStr [rows*COLS] = '\0';
 
